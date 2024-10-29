@@ -14,3 +14,6 @@ template:
   skip_features: []
   version: 1.0.0dev
 update: null
+#https://github.com/nf-core/modules.git:
+#    nf-core:
+#      star/align: 'e937c7950af70930d1f34bb961403d9d2aa81c7'

@@ -9,6 +9,9 @@ include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_seglhqiaseq_pipeline'
+include { trimmomatic            } from '../modules/local/trimmomatic/main'
+include { UMITOOLS_EXTRACT       } from '../modules/nf-core/umitools/extract/main'
+include { CUTADAPT               } from '../modules/nf-core/cutadapt/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,6 +35,28 @@ workflow SEGLHQIASEQ {
     )
     ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]})
     ch_versions = ch_versions.mix(FASTQC.out.versions.first())
+
+    //
+    // trimmomatic module
+    //
+    adapters = file(params.qiagen_adapters)
+    TRIM1_ch = trimmomatic(ch_samplesheet, adapters)
+    ch_versions = ch_versions.mix(trimmomatic.out.versions.first())
+
+
+    //
+    // umiextract module
+    //
+    UMITOOLS_EXTRACT(trimmomatic.out.filtered_fastq)
+    ch_versions = ch_versions.mix(UMITOOLS_EXTRACT.out.versions.first())
+    //ch_multiqc_files = ch_multiqc_files.mix(UMITOOLS_EXTRACT.out.umiextract_metrics{it[1]})
+
+
+    // cutadapt module
+    //
+    CUTADAPT(UMITOOLS_EXTRACT.out.reads)
+    ch_versions = ch_versions.mix(CUTADAPT.out.versions.first())
+    ch_multiqc_files = ch_multiqc_files.mix(CUTADAPT.out.log.collect{it[1]})
 
     //
     // Collate and save software versions

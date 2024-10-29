@@ -220,6 +220,20 @@
                     "hidden": true
                 }
             }
+        },
+        "read_processing_options": {
+            "title": "Fastq processing options",
+            "type": "object",
+            "description": "Options for processing fastq reads prior to alignment",
+            "default": "",
+            "properties": {
+                "qiagen_adapters": {
+                    "type": "string",
+                    "fa_icon": "fas fa-clip",
+                    "description": "Text file containing fasta sequences (eg illumina and qiagen adapter sequences) to clip",
+                    "help_text": "See illumina and qiagen kit information; plus screen fastq sequences directly"
+                }
+            }
         }
     },
     "allOf": [
@@ -234,6 +248,19 @@
         },
         {
             "$ref": "#/$defs/generic_options"
+        },
+        {
+            "$ref": "#/$defs/read_processing_options"
         }
-    ]
+    ],
+    "properties": {
+        "umi_extract_config_mm": {
+            "type": "string",
+            "default": "--quality-encoding=phred33 --extract-method=regex --bc-pattern2=\\'^(?P<umi_1>.{12})(?P<discard_1>.{11}).*\\' --quality-filter-mask=20"
+        },
+        "save_umiextract": {
+            "type": "boolean",
+            "default": true
+        }
+    }
 }
